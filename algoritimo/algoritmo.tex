@@ -1,0 +1,100 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{algorithmic	}
+
+\begin{document}
+
+\def\s{\STATE}
+\def\cc{\COMMENT}
+\def\a{\alpha}
+\def\dt{\Delta t}
+\def\tt{\theta}
+	
+\begin{table}
+\begin{tabular}{ll}
+\hline 
+$L$ & Lado do quadrado domínio.\\
+$N$ & Total de pontos em cada direção no espaço 2D. \\
+$N_t$ & Total de pontos no tempo.\\
+$\kappa$ & Condutividade térmica.\\	
+$T$ & Tempo decorrido d evento.\\
+$\tt_0$ & Temperatura inicial do domínio.\\
+$\tt_{n},\tt_{s},
+ \tt_{l},\tt_{o}$ & 
+ Valores iniciais de temperaturas 
+ nos bordos \\ & superior, inferior, à esquerda e à direita respectivamente.\\
+\hline
+\end{tabular}
+\caption{Constantes envolvidas.}
+\end{table}	
+	
+\begin{table}
+\begin{algorithmic}
+\s $h \gets L/N$ \cc{Passo no espaço}
+\s $\dt \gets T/N_t$ \cc{Pssso no tempo}
+\s $\a \gets (\kappa \dt)/(2 h^2)$
+\cc{Constante}
+\s
+\s ! Matriz $M_{(N-1)\times(N-1)}$ do sistema.
+\s $M \gets [m_{i,j}] \gets \left\{
+\begin{array}{ll}
+1 - 2 \a & i=j\\
+-\a & |i - j| = 1 \\
+0 & \text{No restante.}
+\end{array}
+\right.$
+\s ! Matriz $\tt_{N \times N}$ que representa capo de temperatura (Valores iniciais).
+\s $\tt = [\tt_{i,j}] \gets
+\left\{
+  \begin{array}{ll}
+     \tt_{n} & i=1, \forall j\\
+     \tt_{s} & i=N+1, \forall j\\
+     \tt_{l} & j=1, \forall i\\
+     \tt_{o} & j=N+1, \forall i \\
+     \tt_0 & \text{Nos demais pontos.}
+  \end{array}
+ \right.
+$
+\s Laço temporal
+\FOR {$k \gets 2$ \TO $N_t$}
+ \s ! Determina $\tt^{k+1/2}$ 
+ \FOR {$j \gets 2$ \TO $N$}
+    \s $F = [f_j] \gets 
+        \a\tt_{i-1,j} 
+        + (1 + 2\a) \tt_{i,j}
+        + \a \tt_{i+1,j}$
+ \ENDFOR 
+ \s $f_1 \gets f_1 
+     + \a \tt_o$   
+ \s $f_{N+1} \gets f_{N+1} 
+     + \a \tt_l$ 
+ \s $\tt \gets F \cdot M^{-1}$
+    \cc{valor de $\tt^{k+1/2}$}
+%%%
+\s ! Determina $\tt^{k}$
+\FOR {$i \gets 2$ \TO $N$}
+\s $F = [f_i] \gets 
+  \a\tt_{i,j-1} 
++ (1 + 2\a) \tt_{i,j}
++ \a \tt_{i,j+1}$
+\ENDFOR 
+\s $f_1 \gets f_1 
+   + \a \tt_o$   
+\s $f_{N+1} \gets f_{N+1} 
+   + \a \tt_l$ 
+\s $\tt \gets F \cdot M^{-1}$
+\cc{valor de $\tt^{k+1}$}
+\s
+\s Gera mapa de cor $I_{k}$ relativo a $\tt_{k}$.
+\ENDFOR
+
+\end{algorithmic}
+\caption{Algoritmo de resolução.}
+\end{table}
+	
+\end{document}
